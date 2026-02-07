@@ -2,82 +2,82 @@
 <html lang="hi">
 <head>
     <meta charset="utf-8">
-    <title>Cricket Yoddha - Secure Player</title>
+    <title>Cricket Yoddha - GitHub Fix</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="https://cdn.plyr.io/3.7.8/plyr.css" />
     <script src="https://cdnjs.cloudflare.com/ajax/libs/shaka-player/4.3.5/shaka-player.compiled.js"></script>
     <style>
-        body { margin: 0; padding: 0; background: #000; height: 100vh; display: flex; align-items: center; justify-content: center; font-family: sans-serif; }
-        .container { position: relative; width: 100%; max-width: 1000px; aspect-ratio: 16/9; }
+        body { margin: 0; background: #000; height: 100vh; display: flex; align-items: center; justify-content: center; }
+        .container { width: 100%; max-width: 1000px; aspect-ratio: 16/9; }
         video { width: 100%; height: 100%; }
-        .watermark { position: absolute; top: 15px; right: 15px; width: 50px; z-index: 10; opacity: 0.8; pointer-events: none; }
-        .plyr--full-ui input[type=range] { color: #00b3ff; }
-        .plyr__control--overlaid { background: rgba(0, 179, 255, 0.8); }
-        .plyr__accent { background: #00b3ff; }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <img src="https://i.ibb.co/4RvCpCsM/Qdqj-WDqj-QOOb5vb-K8f4wf-Q.png" class="watermark">
-    <video id="player" playsinline controls crossorigin></video>
+    <video id="player" playsinline controls></video>
 </div>
 
 <script src="https://cdn.plyr.io/3.7.8/plyr.polyfilled.js"></script>
 
 <script>
-/**
- * PROTECTED BY CRICKET YODDHA SECURE SHIELD
- * CODE OBFUSCATED TO PREVENT TAMPERING
- */
-(function(_0x1a2b,_0x3c4d){const _0x5e6f=function(_0x7a8b){while(--_0x7a8b){_0x1a2b['push'](_0x1a2b['shift']());}};_0x5e6f(++_0x3c4d);}(['load','DOMContentLoaded','addEventListener','configure','drm','clearKeys','ae7076b647133606b704d33e4cef5134','810251515584cf71216d9a2d1ebf04bb','getVariantTracks','height','quality','options','settings','speed','i18n','selectVariantTrack','abr','enabled'],0x1a4));
-
-document.addEventListener('DOMContentLoaded', async () => {
-    const _0x01 = document.getElementById('player');
+async function startPlayer() {
+    const video = document.getElementById('player');
     shaka.polyfill.installAll();
-    const _0x02 = new shaka.Player(_0x01);
 
-    // Encrypted Logic for DRM
-    _0x02.configure({
+    if (!shaka.Player.isBrowserSupported()) {
+        alert("Browser not supported!");
+        return;
+    }
+
+    const shakaInstance = new shaka.Player(video);
+
+    // GitHub par CORS issues ke liye ye header kabhi kabhi kaam kar jata hai
+    shakaInstance.configure({
         drm: {
             clearKeys: {
                 'ae7076b647133606b704d33e4cef5134': '810251515584cf71216d9a2d1ebf04bb'
             }
+        },
+        manifest: {
+            dash: {
+                ignoreMinBufferTime: true
+            }
         }
     });
 
-    const _0xURL = 'https://livem-d-01-icc-we.akamaized.net/variant/v1/dai-event-prd-pal-west/vcg-01-d/DASH_DASH/Live/channel(vcg-01-ch-hd-05)/manifest.mpd?vcfilter=44951f97-10ec-427f-a95a-a2ecf57e9a41';
+    const url = 'https://livem-d-01-icc-we.akamaized.net/variant/v1/dai-event-prd-pal-west/vcg-01-d/DASH_DASH/Live/channel(vcg-01-ch-hd-05)/manifest.mpd?vcfilter=44951f97-10ec-427f-a95a-a2ecf57e9a41';
 
     try {
-        await _0x02.load(_0xURL);
+        await shakaInstance.load(url);
+        console.log("Success!");
         
-        const _0x03 = _0x02.getVariantTracks();
-        const _0x04 = [...new Set(_0x03.map(t => t.height))].filter(h => h !== null).sort((a, b) => b - a);
+        // Quality menu setup
+        const tracks = shakaInstance.getVariantTracks();
+        const levels = [...new Set(tracks.map(t => t.height))].filter(h => h).sort((a,b)=>b-a);
 
-        const _0x05 = new Plyr(_0x01, {
-            controls: ['play-large', 'play', 'progress', 'current-time', 'mute', 'volume', 'settings', 'fullscreen'],
-            settings: ['quality', 'speed'],
+        new Plyr(video, {
+            settings: ['quality'],
             quality: {
-                default: 0,
-                options: [0, ..._0x04],
-                forced: true,
+                options: [0, ...levels],
                 onChange: (h) => {
-                    if (h === 0) {
-                        _0x02.configure({ abr: { enabled: true } });
-                    } else {
-                        _0x02.configure({ abr: { enabled: false } });
-                        const tr = _0x02.getVariantTracks().find(t => t.height === h);
-                        if (tr) _0x02.selectVariantTrack(tr, true);
+                    if(h===0) shakaInstance.configure({abr:{enabled:true}});
+                    else {
+                        shakaInstance.configure({abr:{enabled:false}});
+                        shakaInstance.selectVariantTrack(tracks.find(t=>t.height===h), true);
                     }
                 }
-            },
-            i18n: { quality: 'Quality' }
+            }
         });
-    } catch (e) {
-        console.clear(); 
-    }
-});
-</script>
 
+    } catch (e) {
+        // Agar GitHub par fail ho raha hai toh yahan alert aayega
+        alert("Error Code: " + e.code + " - GitHub may be blocking the stream.");
+        console.error("Error Detail:", e);
+    }
+}
+
+document.addEventListener('DOMContentLoaded', startPlayer);
+</script>
 </body>
 </html>
